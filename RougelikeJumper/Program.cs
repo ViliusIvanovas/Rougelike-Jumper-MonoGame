@@ -1,6 +1,8 @@
-﻿using Silk.NET.Maths;
+﻿using System.Runtime.InteropServices;
+using Silk.NET.Core;
+using Silk.NET.Maths;
+using Silk.NET.Vulkan;
 using Silk.NET.Windowing;
-
 
 var app = new RougelikeJumper();
 app.Run();
@@ -11,6 +13,9 @@ unsafe class RougelikeJumper
     const int HEIGHT = 600;
 
     private IWindow? window;
+    private Vk? vk;
+
+    private Instance instance;
 
     public void Run()
     {
@@ -26,7 +31,7 @@ unsafe class RougelikeJumper
         var options = WindowOptions.DefaultVulkan with
         {
             Size = new Vector2D<int>(WIDTH, HEIGHT),
-            Title = "Vulkan"
+            Title = "Vulkan",
         };
 
         window = Window.Create(options);
@@ -40,7 +45,7 @@ unsafe class RougelikeJumper
 
     private void InitVulkan()
     {
-
+        CreateInstance();
     }
 
     private void MainLoop()
@@ -50,6 +55,44 @@ unsafe class RougelikeJumper
 
     private void CleanUp()
     {
+        vk!.DestroyInstance(instance, null);
+        vk!.Dispose();
+
         window?.Dispose();
+    }
+
+    private void CreateInstance()
+    {
+        vk = Vk.GetApi();
+
+        ApplicationInfo appInfo = new()
+        {
+            SType = StructureType.ApplicationInfo,
+            PApplicationName = (byte*)Marshal.StringToHGlobalAnsi("Hello Triangle"),
+            ApplicationVersion = new Version32(1, 0, 0),
+            PEngineName = (byte*)Marshal.StringToHGlobalAnsi("No Engine"),
+            EngineVersion = new Version32(1, 0, 0),
+            ApiVersion = Vk.Version11
+        };
+
+        InstanceCreateInfo createInfo = new()
+        {
+            SType = StructureType.InstanceCreateInfo,
+            PApplicationInfo = &appInfo
+        };
+
+        var glfwExtensions = window!.VkSurface!.GetRequiredExtensions(out var glfwExtensionCount);
+
+        createInfo.EnabledExtensionCount = glfwExtensionCount;
+        createInfo.PpEnabledExtensionNames = glfwExtensions;
+        createInfo.EnabledLayerCount = 0;
+
+        if (vk.CreateInstance(createInfo, null, out instance) != Result.Success)
+        {
+            throw new Exception("failed to create instance!");
+        }
+
+        Marshal.FreeHGlobal((IntPtr)appInfo.PApplicationName);
+        Marshal.FreeHGlobal((IntPtr)appInfo.PEngineName);
     }
 }
