@@ -1,98 +1,48 @@
 ﻿using System.Runtime.InteropServices;
 using Silk.NET.Core;
+using Silk.NET.Input;
 using Silk.NET.Maths;
-using Silk.NET.Vulkan;
+using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
-var app = new RougelikeJumper();
-app.Run();
-
-unsafe class RougelikeJumper
+internal class Program
 {
-    const int WIDTH = 800;
-    const int HEIGHT = 600;
+    private static IWindow window;
+    private static IInputContext input;
 
-    private IWindow? window;
-    private Vk? vk;
-
-    private Instance instance;
-
-    public void Run()
+    private static void Main(string[] args)
     {
-        InitWindow();
-        InitVulkan();
-        MainLoop();
-        CleanUp();
-    }
-
-    private void InitWindow()
-    {
-        //Create a window.
-        var options = WindowOptions.DefaultVulkan with
-        {
-            Size = new Vector2D<int>(WIDTH, HEIGHT),
-            Title = "Vulkan",
-        };
-
+        WindowOptions options = new WindowOptions();
+        options.API = GraphicsAPI.Default;
+        options.Title = "Rougelike Jumper";
+        options.Size = new Vector2D<int>(1280, 720);
         window = Window.Create(options);
-        window.Initialize();
 
-        if (window.VkSurface is null)
+        window.Load += OnWindowLoad;
+        window.Update += Update;
+        window.Render += Render;
+
+        window.Run();
+    }
+
+    public static void OnWindowLoad()
+    {
+        input = window.CreateInput();
+
+        foreach (IMouse mouse in input.Mice)
         {
-            throw new Exception("Windowing platform doesn't support Vulkan.");
+            mouse.Click += (IMouse cursor, MouseButton button, System.Numerics.Vector2 pos) => { };
+            Console.WriteLine("Click");
         }
     }
 
-    private void InitVulkan()
+    public static void Update(double d)
     {
-        CreateInstance();
+
     }
 
-    private void MainLoop()
-    {
-        window!.Run();
-    }
+    public static void Render(double d)
+    { 
 
-    private void CleanUp()
-    {
-        vk!.DestroyInstance(instance, null);
-        vk!.Dispose();
-
-        window?.Dispose();
-    }
-
-    private void CreateInstance()
-    {
-        vk = Vk.GetApi();
-
-        ApplicationInfo appInfo = new()
-        {
-            SType = StructureType.ApplicationInfo,
-            PApplicationName = (byte*)Marshal.StringToHGlobalAnsi("Hello Triangle"),
-            ApplicationVersion = new Version32(1, 0, 0),
-            PEngineName = (byte*)Marshal.StringToHGlobalAnsi("No Engine"),
-            EngineVersion = new Version32(1, 0, 0),
-            ApiVersion = Vk.Version11
-        };
-
-        InstanceCreateInfo createInfo = new()
-        {
-            SType = StructureType.InstanceCreateInfo,
-            PApplicationInfo = &appInfo
-        };
-
-        var glfwExtensions = window!.VkSurface!.GetRequiredExtensions(out var glfwExtensionCount);
-
-        createInfo.EnabledExtensionCount = glfwExtensionCount;
-        createInfo.PpEnabledExtensionNames = glfwExtensions;
-        createInfo.EnabledLayerCount = 0;
-
-        if (vk.CreateInstance(createInfo, null, out instance) != Result.Success)
-        {
-            throw new Exception("failed to create instance!");
-        }
-
-        Marshal.FreeHGlobal((IntPtr)appInfo.PApplicationName);
-        Marshal.FreeHGlobal((IntPtr)appInfo.PEngineName);
     }
 }
