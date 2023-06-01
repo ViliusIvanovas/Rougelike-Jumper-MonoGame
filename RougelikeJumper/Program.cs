@@ -3,6 +3,7 @@ using Silk.NET.Core;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
+using Silk.NET.GLFW;
 using Silk.NET.Windowing;
 
 internal class Program
@@ -31,7 +32,7 @@ internal class Program
 
         foreach (IMouse mouse in input.Mice)
         {
-            mouse.Click += (IMouse cursor, MouseButton button, System.Numerics.Vector2 pos) => { };
+            //mouse.Click += (IMouse cursor, MouseButton button, System.Numerics.Vector2 pos) => { };
             Console.WriteLine("Click");
         }
     }
