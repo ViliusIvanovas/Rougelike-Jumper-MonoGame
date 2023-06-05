@@ -13,6 +13,12 @@ public class Game1 : Game
     public Game1()
     {
         _graphics = new GraphicsDeviceManager(this);
+        _graphics.IsFullScreen = false;
+        _graphics.PreferredBackBufferWidth = 400;
+        _graphics.PreferredBackBufferHeight = 800;
+        
+        _graphics.ApplyChanges();
+
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
     }
@@ -30,17 +36,20 @@ public class Game1 : Game
 
         // TODO: use this.Content to load your game content here
 
+        #region Load Player Textures
+
         for (int i = 0; i < Player.IdleTextures.Length; i++)
         {
-            Player.IdleTextures[i] = Content.Load<Texture2D>($"Player/Idle{i}");
+            Texture2D texture2D = Content.Load<Texture2D>($"Player/Idle{i}");
+            Player.IdleTextures[i] = texture2D;
         }
 
         Player.AnimationTextures.Add("Idle", Player.IdleTextures);
 
         Player.CurrentAnimationIndex = 0;
-    }
 
-    public float TimeSinceAnimationChange = 0;
+        #endregion
+    }
 
     protected override void Update(GameTime gameTime)
     {
@@ -56,22 +65,12 @@ public class Game1 : Game
             Player.Position += new Vector2(0, -1);
         if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || Keyboard.GetState().IsKeyDown(Keys.Down))
             Player.Position += new Vector2(0, 1);
-        
+
         #endregion
 
         // TODO: Add your update logic here
 
-        TimeSinceAnimationChange += (float)gameTime.ElapsedGameTime.TotalSeconds;
-
-        if (TimeSinceAnimationChange > 3f)
-        {
-            TimeSinceAnimationChange = 0;
-            Player.CurrentAnimationIndex++;
-            if (Player.CurrentAnimationIndex >= Player.AnimationTextures["Idle"].Length)
-            {
-                Player.CurrentAnimationIndex = 0;
-            }
-        }
+        Player.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
     }
@@ -83,8 +82,8 @@ public class Game1 : Game
         // TODO: Add your drawing code here
         _spriteBatch.Begin();
 
-        _spriteBatch.Draw(Player.AnimationTextures["Idle"][Player.CurrentAnimationIndex], Player.Position, Color.White);
-        
+        _spriteBatch.Draw(Player.AnimationTextures[Player.CurrentAnimationState][Player.CurrentAnimationIndex], Player.Position, Color.White);
+
         _spriteBatch.End();
 
         base.Draw(gameTime);
