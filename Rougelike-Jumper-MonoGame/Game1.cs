@@ -8,7 +8,7 @@ public class Game1 : Game
 {
     private GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch;
-    public Player Player = new Player(100, new Vector2(0, 0));
+    public Player Player = new Player(new Vector2 (2, 2));
 
     public Game1()
     {
@@ -69,8 +69,6 @@ public class Game1 : Game
         #endregion
 
         // TODO: Add your update logic here
-
-        Player.Update(gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Update(gameTime);
     }

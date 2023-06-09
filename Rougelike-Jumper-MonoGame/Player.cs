@@ -1,42 +1,35 @@
+using System;
 using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
-using System;
-using System.Collections.Generic;
 
-namespace Rougelike_Jumper_MonoGame;
-
-// https://github.com/MonoGame/MonoGame.Samples/blob/3.8.0/Platformer2D/Platformer2D.Core/Game/Enemy.cs
-
-public class Player : GameComponent, IGameComponent, IUpdateable, IDrawable
+namespace Rougelike_Jumper_MonoGame
 {
-    public int Health;
-    public Vector2 Position;
-
-    public Texture2D[] IdleTextures = new Texture2D[3];
-    public Dictionary<string, Texture2D[]> AnimationTextures = new Dictionary<string, Texture2D[]>();
-    public string CurrentAnimationState = "Idle";
-
-    public int CurrentAnimationIndex;
-    public double TimeSinceAnimationChange = 0;
-
-    protected override void update()
+    class Player
     {
+        public Vector2 Position;
+        public Vector2 RestartPosition;
+        public bool IsAlive;
 
-    }
-
-    /*public void Update(double DeltaTime)
-    {
-        TimeSinceAnimationChange += DeltaTime;
-
-        if (TimeSinceAnimationChange > 3)
+        public Player(Vector2 SpawnPosition)
         {
-            TimeSinceAnimationChange = 0;
-            CurrentAnimationIndex++;
-            if (CurrentAnimationIndex >= AnimationTextures["Idle"].Length)
-            {
-                CurrentAnimationIndex = 0;
-            }
+            RestartPosition = SpawnPosition;
+
+            LoadContent();
         }
-    }*/
+
+        public void LoadContent()
+        {
+
+        }
+
+        public void Reset(Vector2 SpawnPosition)
+        {
+            Position = RestartPosition;
+            Velocity = Vector2.Zero;
+            IsAlive = true;
+            sprite.PlayAnimation(idleAnimation);
+        }
+    }
 }
