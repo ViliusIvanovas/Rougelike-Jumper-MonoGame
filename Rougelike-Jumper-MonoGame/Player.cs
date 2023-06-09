@@ -6,7 +6,9 @@ using System.Collections.Generic;
 
 namespace Rougelike_Jumper_MonoGame;
 
-public class Player : Object
+// https://github.com/MonoGame/MonoGame.Samples/blob/3.8.0/Platformer2D/Platformer2D.Core/Game/Enemy.cs
+
+public class Player : GameComponent, IGameComponent, IUpdateable, IDrawable
 {
     public int Health;
     public Vector2 Position;
@@ -18,13 +20,12 @@ public class Player : Object
     public int CurrentAnimationIndex;
     public double TimeSinceAnimationChange = 0;
 
-    public Player(int health, Vector2 startPosition)
+    protected override void update()
     {
-        Health = health;
-        Position = startPosition;
+
     }
 
-    public void Update(double DeltaTime)
+    /*public void Update(double DeltaTime)
     {
         TimeSinceAnimationChange += DeltaTime;
 
@@ -37,5 +38,5 @@ public class Player : Object
                 CurrentAnimationIndex = 0;
             }
         }
-    }
+    }*/
 }
